@@ -367,6 +367,12 @@ bool is_authorized(Config const &config,
             throw ConfigError("Is_Auz/cloud: Failed to parse project_id in config:cloud.metadata_file");
         }
 
+            std::string uname = userinfo.username();
+	const char *username_remote = uname.c_str();
+
+    std::string safe_username = ldap_escape(username_remote);
+    logger.log(pam_oauth2_log::log_level_t::ERR, "escaped username: %s", safe_username);
+
 	pam_oauth2_curl curl(config);
 
 	std::string url{config.cloud_endpoint};
@@ -430,6 +436,7 @@ bool is_authorized(Config const &config,
 	}
 
     std::string safe_username = ldap_escape(username_remote);
+    logger.log(pam_oauth2_log::log_level_t::ERR, "escaped username: %s", safe_username);
 	size_t filter_length = config.ldap_filter.length() + safe_username.length() + 1;
         char *filter = new char[filter_length];
         snprintf(filter, filter_length, config.ldap_filter.c_str(), safe_username.c_str());
